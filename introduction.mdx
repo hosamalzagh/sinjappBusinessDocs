@@ -1,0 +1,48 @@
+---
+title: "Sinjapp Business API"
+description: "Connect your tenant workspace to Sinjapp messaging with verified sender numbers and tenant API keys."
+---
+
+Sinjapp Business lets a tenant customer manage their own workspace, subscription, payment, sender numbers, API keys, and messaging operations from the tenant dashboard.
+
+These docs are for tenant customers only. They describe the Tenant API used for messaging operations.
+
+## What You Can Do
+
+- Open your tenant workspace.
+- Manage subscription and payment inside the tenant dashboard.
+- Add a sender number from the tenant dashboard.
+- Verify sender number ownership with an OTP delivered inside Sinjapp.
+- Create a tenant API key.
+- Send messages and read usage through the Tenant API.
+
+## Postman Collection
+
+Use the official Postman collection to test the Tenant API without building requests by hand.
+
+<Card title="Download Postman Collection" href="/postman/sinjapp-business-api.postman_collection.json">
+  Import the collection into Postman, then set `tenant_base_url` and `tenant_api_key`.
+</Card>
+
+## Base URL
+
+```text
+Tenant API: https://{tenant}.sinjapp.org/api/v1
+```
+
+Use your own tenant domain. For example:
+
+```text
+https://{tenant}.sinjapp.org/api/v1
+```
+
+The tenant domain must match the workspace domain shown in the dashboard exactly. A typo in the subdomain, such as using a different tenant name, returns `404 Tenant could not be identified for this domain.`
+
+<Note>
+Subscription and payment are managed inside the tenant dashboard. They are not exposed as public API flows in these customer docs.
+</Note>
+
+## Interactive Reference
+
+- Mintlify renders the guide and OpenAPI reference.
+- The `Scalar` page links to the deployed API reference and the shared OpenAPI file.

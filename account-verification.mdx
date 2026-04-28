@@ -1,0 +1,21 @@
+---
+title: "Account Verification"
+description: "Understand sender number ownership and Sinjapp account verification."
+---
+
+There are two separate checks before a sender number can send messages:
+
+1. Sender number ownership is confirmed with OTP.
+2. The sender number owner completes Sinjapp account verification.
+
+Accepting the OTP proves that the tenant owns the sender number. Sending customer messages still requires the sender number owner account to be verified in Sinjapp.
+
+## If The Account Is Not Verified
+
+The sender number may appear as:
+
+```text
+pending_account_verification
+```
+
+The tenant does not need a new OTP. The sender number owner must complete Sinjapp account verification, then the number becomes ready for messaging.

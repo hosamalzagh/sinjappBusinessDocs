@@ -1,0 +1,387 @@
+{
+  "info": {
+    "_postman_id": "78bced58-060c-4128-8614-e2183e66f2d1",
+    "name": "Sinjapp Business API - Full",
+    "description": "Single-file Postman collection for the full Sinjapp Business API. Includes Tenant API with text, image, voice, and document message examples. Fill tenant_base_url with the exact tenant workspace API URL shown in the dashboard, and fill tenant_api_key with the full API key copied from Dashboard > API Keys.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "tenant_base_url",
+      "value": "https://your-tenant-domain.example.com/api/v1",
+      "description": "Use the exact tenant workspace API URL, including /api/v1. A mistyped tenant domain returns 404.",
+      "type": "string"
+    },
+    {
+      "key": "tenant_api_key",
+      "value": "paste_your_tenant_api_key_here",
+      "description": "Copy the full API key from Dashboard > API Keys.",
+      "type": "string"
+    },
+    {
+      "key": "sender_phone",
+      "value": "{{sender_phone}}",
+      "type": "string"
+    },
+    {
+      "key": "api_key_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "recipient_phone",
+      "value": "{{recipient_phone}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Tenant API",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/me"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subscription",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/subscription"
+          },
+          "response": []
+        },
+        {
+          "name": "List Sender Numbers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/sender-numbers"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Sender Number",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{sender_phone}}\",\n  \"display_name\": \"Center Sender\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{tenant_base_url}}/sender-numbers"
+          },
+          "response": []
+        },
+        {
+          "name": "Contact Lookup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/contacts/lookup?phone={{recipient_phone}}&sender_phone={{sender_phone}}"
+          },
+          "response": []
+        },
+        {
+          "name": "List Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/messages"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Text Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "sender_phone",
+                  "value": "{{sender_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "to_phone",
+                  "value": "{{recipient_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "text",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Hello from Sinjapp Business API",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{tenant_base_url}}/messages"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Image Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "sender_phone",
+                  "value": "{{sender_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "to_phone",
+                  "value": "{{recipient_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "image",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Image message from Sinjapp Business API",
+                  "type": "text"
+                },
+                {
+                  "key": "media",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{tenant_base_url}}/messages"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Voice Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "sender_phone",
+                  "value": "{{sender_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "to_phone",
+                  "value": "{{recipient_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "voice",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "duration",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "media",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{tenant_base_url}}/messages"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Document Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "sender_phone",
+                  "value": "{{sender_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "to_phone",
+                  "value": "{{recipient_phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "document",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Document message from Sinjapp Business API",
+                  "type": "text"
+                },
+                {
+                  "key": "media",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{tenant_base_url}}/messages"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Usage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/usage"
+          },
+          "response": []
+        },
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"API Key From Collection\",\n  \"scopes\": [\"contacts.lookup\", \"messages.send\", \"messages.read\", \"usage.read\"],\n  \"expires_in_days\": 90\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{tenant_base_url}}/api-keys"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete API Key",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{tenant_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{tenant_base_url}}/api-keys/{{api_key_id}}"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

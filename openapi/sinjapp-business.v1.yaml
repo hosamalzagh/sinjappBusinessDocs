@@ -1,0 +1,523 @@
+openapi: 3.0.3
+info:
+  title: Sinjapp Business API
+  version: 1.0.0
+  description: |
+    Sinjapp Business exposes a Tenant API for customer messaging operations.
+  license:
+    name: Proprietary
+    url: https://sinjapp.com/legal/terms
+servers:
+  - url: "{tenantBaseUrl}/api/v1"
+    description: Tenant API
+    variables:
+      tenantBaseUrl:
+        default: https://your-tenant.sinjapp.org
+        description: Full customer tenant URL, including https://. Use the exact tenant workspace domain shown in the dashboard.
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Auth
+    description: Tenant identity and runtime context.
+  - name: Subscription
+    description: Tenant subscription status. Payment and plan changes happen inside the tenant dashboard.
+  - name: API Keys
+    description: Tenant API credentials and scopes.
+  - name: Sender Numbers
+    description: Sender number registration and activation state.
+  - name: Messages
+    description: Sending and reading message logs.
+  - name: Contacts
+    description: Contact reachability checks.
+  - name: Usage
+    description: Usage counters and limits.
+paths:
+  /me:
+    get:
+      tags: [Auth]
+      summary: Current tenant context
+      operationId: getTenantContext
+      x-mint:
+        mcp:
+          enabled: true
+          name: get-tenant-context
+          description: Read-only. Get the current Sinjapp Business tenant context for an active API key, including user, API key, organization, and subscription information.
+      responses:
+        "200":
+          description: Current user, API key, organization, and subscription.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                  api_key:
+                    type: object
+                    nullable: true
+                  organization:
+                    $ref: "#/components/schemas/Organization"
+                  subscription:
+                    type: object
+                    nullable: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/TenantNotFound"
+  /subscription:
+    get:
+      tags: [Subscription]
+      summary: Current tenant subscription
+      operationId: getTenantSubscription
+      description: Returns the tenant plan, limits, and usage snapshot. Payment and plan changes happen inside the tenant dashboard.
+      x-mint:
+        mcp:
+          enabled: true
+          name: get-tenant-subscription
+          description: Read-only. Get the current Sinjapp Business tenant subscription status, plan limits, and usage snapshot. Payment and plan changes happen in the tenant dashboard.
+      responses:
+        "200":
+          description: Current tenant subscription, plan, limits, and usage.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan:
+                    type: object
+                    nullable: true
+                  status:
+                    type: string
+                    nullable: true
+                  limits:
+                    type: array
+                    items:
+                      type: object
+                  usage_snapshot:
+                    type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/TenantNotFound"
+  /api-keys:
+    post:
+      tags: [API Keys]
+      summary: Create an API key
+      operationId: createApiKey
+      x-mint:
+        mcp:
+          enabled: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Production integration
+                scopes:
+                  type: array
+                  items:
+                    type: string
+                    enum: ["*", "contacts.lookup", "messages.send", "messages.read", "usage.read"]
+                  example: ["messages.send", "messages.read"]
+                expires_in_days:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  default: 90
+      responses:
+        "201":
+          description: API key created. The plain text key is returned in this response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ApiKey"
+                  plain_text_key:
+                    type: string
+                    example: tgo_Rm9vQmFyQmF6...
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /api-keys/{apiKey}:
+    delete:
+      tags: [API Keys]
+      summary: Revoke an API key
+      operationId: revokeApiKey
+      x-mint:
+        mcp:
+          enabled: false
+      parameters:
+        - name: apiKey
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: API key revoked.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /sender-numbers:
+    get:
+      tags: [Sender Numbers]
+      summary: List sender numbers
+      operationId: listSenderNumbers
+      x-mint:
+        mcp:
+          enabled: true
+          name: list-sender-numbers
+          description: Read-only. List sender numbers registered to the current Sinjapp Business tenant, including their status and verification state.
+      responses:
+        "200":
+          description: Sender numbers for the tenant.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SenderNumber"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Sender Numbers]
+      summary: Register a sender number
+      operationId: registerSenderNumber
+      x-mint:
+        mcp:
+          enabled: false
+      security:
+        - ApiKeyAuth: [messages.send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  example: "{sender_phone}"
+                display_name:
+                  type: string
+                  example: Support
+      responses:
+        "201":
+          description: Sender number created and OTP dispatched when the Sinjapp account exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/SenderNumber"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /contacts/lookup:
+    get:
+      tags: [Contacts]
+      summary: Check whether a phone can receive messages
+      operationId: lookupContact
+      x-mint:
+        mcp:
+          enabled: true
+          name: lookup-contact
+          description: Lookup only. Check whether a recipient phone number exists in Sinjapp and can receive messages from a tenant sender number. Requires contacts.lookup scope.
+      security:
+        - ApiKeyAuth: [contacts.lookup]
+      parameters:
+        - name: phone
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "{recipient_phone}"
+        - name: sender_number_id
+          in: query
+          schema:
+            type: integer
+        - name: sender_phone
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lookup result from Sinjapp.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactLookup"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /messages:
+    get:
+      tags: [Messages]
+      summary: List message logs
+      operationId: listMessages
+      x-mint:
+        mcp:
+          enabled: true
+          name: list-message-logs
+          description: Read-only. List Sinjapp Business message logs for the current tenant API key. Requires messages.read scope and does not send messages.
+      security:
+        - ApiKeyAuth: [messages.read]
+      responses:
+        "200":
+          description: Paginated message logs.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Messages]
+      summary: Send a message
+      operationId: sendMessage
+      x-mint:
+        mcp:
+          enabled: false
+      security:
+        - ApiKeyAuth: [messages.send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/SendMessageRequest"
+                - type: object
+                  properties:
+                    media:
+                      type: string
+                      format: binary
+      responses:
+        "201":
+          description: Message accepted and logged.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/MessageLog"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /usage:
+    get:
+      tags: [Usage]
+      summary: Read usage counters
+      operationId: getUsage
+      x-mint:
+        mcp:
+          enabled: true
+          name: get-usage
+          description: Read-only. Get Sinjapp Business usage counters and limits for the current tenant. Requires usage.read scope.
+      security:
+        - ApiKeyAuth: [usage.read]
+      responses:
+        "200":
+          description: Usage grouped by sender number.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  responses:
+    Unauthorized:
+      description: Missing, invalid, expired, or insufficient API credentials.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+    TenantNotFound:
+      description: The request host does not match a known tenant workspace domain.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Tenant could not be identified for this domain.
+    ValidationError:
+      description: Validation failed.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+  schemas:
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+        primary_domain:
+          type: string
+        billing_email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+    ApiKey:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        prefix:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, revoked]
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+    SenderNumber:
+      type: object
+      properties:
+        id:
+          type: integer
+        phone:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+        verification_status:
+          type: string
+          enum: [pending_verification, pending_account_verification, active, rejected]
+        status:
+          type: string
+          enum: [pending_verification, active, suspended, rejected, removed]
+        daily_limit_override:
+          type: integer
+          nullable: true
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+    ContactLookup:
+      type: object
+      properties:
+        exists:
+          type: boolean
+        can_receive:
+          type: boolean
+        reason_code:
+          type: string
+          example: ok
+        recipient_id:
+          type: integer
+          nullable: true
+        is_verified:
+          type: boolean
+        phone_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+    SendMessageRequest:
+      type: object
+      required: [to_phone, type]
+      properties:
+        sender_number_id:
+          type: integer
+          description: Required when sender_phone is not provided.
+        sender_phone:
+          type: string
+          description: Required when sender_number_id is not provided.
+          example: "{sender_phone}"
+        to_phone:
+          type: string
+          example: "{recipient_phone}"
+        type:
+          type: string
+          enum: [text, image, voice, document]
+        content:
+          type: string
+          nullable: true
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 300
+          nullable: true
+        file_name:
+          type: string
+          nullable: true
+        file_size:
+          type: integer
+          nullable: true
+        file_type:
+          type: string
+          nullable: true
+    MessageLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender_number_id:
+          type: integer
+        recipient_user_id:
+          type: integer
+          nullable: true
+        conversation_id:
+          type: integer
+          nullable: true
+        message_id:
+          type: integer
+          nullable: true
+        message_type:
+          type: string
+        content:
+          type: string
+          nullable: true
+        status:
+          type: string
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true

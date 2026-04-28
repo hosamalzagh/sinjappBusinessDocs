@@ -1,0 +1,89 @@
+---
+title: "Errors"
+description: "Common Tenant API errors and how to resolve them."
+---
+
+## Sender Number Is Not Active
+
+```json
+{
+  "message": "Sender number is not active."
+}
+```
+
+Confirm that the OTP was accepted and that the sender number is not rejected or still pending.
+
+## Sender Account Is Not Verified
+
+```json
+{
+  "message": "The sender number owner must be verified in Sinjapp before using the messaging API."
+}
+```
+
+The sender number is owned by the tenant, but the Sinjapp account still needs account verification.
+
+## API Key Does Not Have The Required Scope
+
+Make sure the key has the required scope, such as:
+
+```text
+messages.send
+```
+
+Or use:
+
+```text
+*
+```
+
+## Recipient Cannot Receive Messages
+
+Use contact lookup before sending to confirm the recipient exists and can receive messages.
+
+## Common HTTP Responses
+
+### 401 Unauthenticated
+
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+Check that the `X-Api-Key` header is present, active, and not expired.
+
+### 404 Tenant Domain Not Found
+
+```json
+{
+  "message": "Tenant could not be identified for this domain."
+}
+```
+
+Check that the request URL uses the exact tenant workspace domain from the dashboard. For example, `{tenant}.sinjapp.org` and `{other-tenant}.sinjapp.org` are different tenants.
+
+### 403 Insufficient Scope
+
+```json
+{
+  "message": "This API key does not have the required scope."
+}
+```
+
+Create a key with the operation scope, such as `messages.send`, `messages.read`, `contacts.lookup`, or `usage.read`.
+
+### 422 Validation Error
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "to_phone": [
+      "The to phone field is required."
+    ]
+  }
+}
+```
+
+Read the `errors` object and fix each field before retrying.

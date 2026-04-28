@@ -1,0 +1,97 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Sinjapp Business",
+  "description": "Tenant API documentation for Sinjapp Business messaging, sender numbers, contacts, usage, and MCP access.",
+  "theme": "mint",
+  "colors": {
+    "primary": "#f59e0b",
+    "light": "#f59e0b",
+    "dark": "#fbbf24"
+  },
+  "favicon": "https://sinjapp.com/favicon.png",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "authentication",
+          "postman-collection"
+        ]
+      },
+      {
+        "group": "Messaging setup",
+        "pages": [
+          "sender-numbers",
+          "account-verification",
+          "contacts-lookup",
+          "messaging",
+          "usage",
+          "errors"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "code-examples"
+        ]
+      },
+      {
+        "group": "AI tools",
+        "pages": [
+          "mcp-setup"
+        ]
+      },
+      {
+        "group": "Interactive reference",
+        "pages": [
+          "scalar"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "openapi": "/openapi/sinjapp-business.v1.yaml"
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Sinjapp Business",
+        "href": "https://business.sinjapp.com"
+      },
+      {
+        "label": "Scalar",
+        "href": "/scalar"
+      },
+      {
+        "label": "Postman",
+        "href": "/postman-collection"
+      },
+      {
+        "label": "MCP",
+        "href": "/mcp"
+      }
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/scalar.html",
+      "destination": "/scalar"
+    }
+  ],
+  "contextual": {
+    "options": [
+      "copy",
+      "mcp",
+      "add-mcp",
+      "cursor",
+      "vscode"
+    ],
+    "display": "header"
+  },
+  "footer": {
+    "socials": {}
+  }
+}
